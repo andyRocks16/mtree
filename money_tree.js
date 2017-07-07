@@ -170,7 +170,6 @@ app.post('/giveOrder/:tempID', function (req, res) {
                                 console.log(err.message);
                                 return res.status(404).json({ status: 'true ', message: [{ error: err.message }] });
                             }
-                            connection.release();
                         })
                 }
             }
@@ -362,7 +361,7 @@ app.get('/getDrafts/:tempID', function (req, res) {
                 for (var i = 0; i < rows.length; i++) {
                     if (rows[i].sessionId == req.params.tempID) {
                         console.log("User with User Id : " + rows[i].user_id + " and Session Key : " + rows[i].sessionId + " retreieving his Draft History Page Information");
-                        connection.query("SELECT * FROM DRAFT as D, shares as S WHERE S.id=D.share_id AND pm_id='" + rows[i].user_id + "';", function (err, rows, fields) {
+                        connection.query("SELECT * FROM draft as D, shares as S WHERE S.id=D.share_id AND pm_id='" + rows[i].user_id + "';", function (err, rows, fields) {
                             if (!err) {
                                 for (var j = 0; j < rows.length; j++)
                                     retJson.message.push(rows[j]);
@@ -397,7 +396,7 @@ app.post('/saveDraft/:tempID', function (req, res) {
                     if (rows[i].sessionId == req.params.tempID) {
                         console.log("User with User Id : " + rows[i].user_id + " and Session Key : " + rows[i].sessionId);
                         var tkn = randomstring.generate(10);
-                        connection.query("INSERT INTO draft VALUES('" + body.quantity + "','" + body.share_id + "' , '" + rows[i].user_id + "' ,'" + formatted + "' , '" + body.price + "','" + tkn + "');", function (err, rows, fields) {
+                        connection.query("INSERT INTO draft VALUES('" + body.total_quantity + "','" + body.share_id + "' , '" + rows[i].user_id + "' ,'" + formatted + "' , '" + body.current_price + "','" + tkn + "');", function (err, rows, fields) {
                             if (!err) {
                                 console.log("Saving his draft with Draft Id : " + tkn);
                                 retJson[0].message[0] = { data: tkn }
@@ -966,7 +965,7 @@ app.post('/loginData', function (req, res) {
                                                                     for (var i = 0; i < rows.length; i++) {
                                                                         retJson.shares.push(rows[i]);
                                                                     }
-                                                                    var query1 = "SELECT * FROM HISTORY as H, shares as S WHERE S.id = H.share_id AND " + col_name + "='" + body.id + "' order by et_id;";
+                                                                    var query1 = "SELECT * FROM history as H, shares as S WHERE S.id = H.share_id AND " + col_name + "='" + body.id + "' order by et_id;";
                                                                     console.log(query1);
                                                                     connection.query(query1, function (err, rows, fields) {
                                                                         if (!err) {
@@ -989,7 +988,7 @@ app.post('/loginData', function (req, res) {
                                                                                 retJson.orderHistory.push(data);
                                                                             }
                                                                             if (access_level == "PM") {
-                                                                                var query2 = "SELECT * FROM DRAFT as D, shares as S WHERE S.id = D.share_id AND " + col_name + "='" + body.id + "';";
+                                                                                var query2 = "SELECT * FROM draft as D, shares as S WHERE S.id = D.share_id AND " + col_name + "='" + body.id + "';";
                                                                                 console.log(query2);
                                                                                 connection.query(query2, function (err, rows, fields) {
                                                                                     if (!err) {
@@ -1007,7 +1006,7 @@ app.post('/loginData', function (req, res) {
                                                                                 });
                                                                             }
                                                                             else if (access_level == "ET") {
-                                                                                var query3 = "SELECT * FROM BLOCK as B, shares as S WHERE S.id = B.share_id AND " + col_name + "='" + body.id + "';";
+                                                                                var query3 = "SELECT * FROM block as B, shares as S WHERE S.id = B.share_id AND " + col_name + "='" + body.id + "';";
                                                                                 console.log(query3);
                                                                                 connection.query(query3, function (err, rows, fields) {
                                                                                     if (!err) {
@@ -1025,6 +1024,8 @@ app.post('/loginData', function (req, res) {
                                                                                 });
                                                                             }
                                                                             //return res.status(200).json(retJson);
+                                                                        }else{
+                                                                            console.log(err.message)
                                                                         }
                                                                     });
                                                                 } else {
