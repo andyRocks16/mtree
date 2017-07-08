@@ -556,8 +556,10 @@ app.post('/buildBlocks/:tempID', function (req, res) {
                         console.log("User with User Id : " + rows[i].user_id + " and session Key : " + rows[i].sessionId + " has made a request to create Blocks of Order : " + body.id);
                         id = rows[i].user_id;
                         var q = "SELECT * FROM money_tree.order WHERE id='" + body.id + "';";
+                        console.log(q)
                         connection.query(q, function (err, rows, fields) {
                             var number;
+                            console.log(rows)
                             if (rows[0].total_quantity > 100) {
                                 number = rows[0].total_quantity / 100;
                                 var x = rows[0].total_quantity % 100;
